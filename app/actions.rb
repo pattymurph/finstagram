@@ -22,6 +22,49 @@ get '/logout' do
     redirect to('/')
 end
 
+get '/posts/new' do
+    @post = Post.new
+    erb(:"posts/new")
+end
+
+get '/posts/:id' do
+    @post = Post.find(params[:id])
+    erb(:"posts/show")
+end
+
+post '/likes' do
+    post_id = params[:post_id]
+    
+    like = Like.new({ post_id: post_id, user_id: current_user.id })
+    like.save
+    
+    redirect(back)
+end
+
+post '/comments' do
+    text = params[:text]
+    post_id = params[:post_id]
+    
+    comment = Comment.new({ text: text, post_id: post_id, user_id: current_user.id})
+
+    comment.save
+    
+    redirect(back)
+end
+
+post '/posts' do
+    photo_url = params[:photo_url]
+    
+    @post = Post.new({ photo_url: photo_url, user_id: current_user.id })
+    
+    if @post.save
+        redirect(to('/'))
+    else
+        erb(:"posts/new")
+    end
+end
+
+
 post '/login' do
     username = params[:username]
     password = params[:password]
@@ -56,5 +99,13 @@ post '/signup' do
     else
         erb(:signup)
     end
+    
+   
+    
 end
     
+ delete '/likes/:id' do
+         like = Like.find(params[:id])
+         like.destroy
+        redirect(back)
+    end
